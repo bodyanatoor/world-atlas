@@ -4,3 +4,8 @@
 body{background:#eee9dd}header{background:#f9f5e9;padding:24px 28px;border-bottom:1px solid #c9bea6}h1{letter-spacing:.035em;color:#354b46}.sub{letter-spacing:.055em}aside{background:#faf7ee;padding:24px}aside section{padding-bottom:22px;border-color:#ded5c1}h2{font:small-caps 17px Georgia,serif;color:#566657;letter-spacing:.08em}.maparea{background:linear-gradient(130deg,#e9e6dc,#e1e9e5)}.stage{box-shadow:0 10px 35px #344d4320;border:1px solid #9aaa99;border-radius:8px}button,select,input{border-color:#c2c8b7;background:#fffcf3;border-radius:7px}button[aria-pressed=true]{background:#496953;border-color:#496953}#details{background:#f0eddf;border-radius:8px;padding:12px;margin-top:12px;line-height:1.65}.layers{gap:10px}.readout{padding-top:12px}
 
 .stage{position:relative}.stage[aria-busy=true]{cursor:progress}.load-status{padding:12px;background:#fff8de;color:#374e46}.stage.dragging{cursor:grabbing}button:disabled{opacity:.5}.stage svg{contain:layout style}
+/* Transform the complete sheet while navigating; redraw vectors after the gesture. */
+.stage svg{transform-origin:0 0;pointer-events:auto}.stage.dragging svg{pointer-events:none}
+
+/* Overscan keeps neighboring map content ready during short pans and zooms. */
+.stage svg{position:absolute;left:-50%;top:-50%;width:200%;height:200%;max-width:none}
