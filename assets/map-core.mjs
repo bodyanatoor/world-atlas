@@ -1,0 +1,10 @@
+export function fit(b,w,h){let x=(b[0]+b[2])/2,y=(b[1]+b[3])/2,ww=Math.max(.5,b[2]-b[0]),hh=Math.max(.5,b[3]-b[1]);ww=Math.max(ww,hh*w/h);hh=ww*h/w;return [x-ww/2,y-hh/2,ww,hh]}
+export function project(p,v,w,h){return [(p[0]-v[0])*w/v[2],(v[1]+v[3]-p[1])*h/v[3]]}
+export function unproject(p,v,w,h){return [v[0]+p[0]*v[2]/w,v[1]+v[3]-p[1]*v[3]/h]}
+export function zoomAt(v,p,f,w,h){const a=unproject(p,v,w,h),ww=Math.max(.5,Math.min(500,v[2]*f)),hh=ww*h/w;return [a[0]-p[0]*ww/w,a[1]-(1-p[1]/h)*hh,ww,hh]}
+export function pan(v,dx,dy,w,h){return [v[0]-dx*v[2]/w,v[1]+dy*v[3]/h,v[2],v[3]]}
+export function ringContains(p,ring){let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const a=ring[i],b=ring[j];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])inside=!inside}return inside}
+export function contains(p,g){return g.coordinates.some(poly=>ringContains(p,poly[0])&&!poly.slice(1).some(r=>ringContains(p,r)))}
+export function distance(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy||1)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy)}
+export function hits(p,features,tolerance,visible,land){return features.flatMap(f=>{if(visible[f.layer]===false)return [];const b=f.bounds;if(p[0]<b[0]-tolerance||p[0]>b[2]+tolerance||p[1]<b[1]-tolerance||p[1]>b[3]+tolerance)return [];let dist=0,rank=3;const g=f.geometry;if(g.type==='Point'){dist=Math.hypot(p[0]-g.coordinates[0],p[1]-g.coordinates[1]);rank=0;if(dist>tolerance)return []}else if(g.type==='LineString'){dist=Math.min(...g.coordinates.slice(1).map((b,i)=>distance(p,g.coordinates[i],b)));rank=1;if(dist>tolerance)return []}else{if(!contains(p,g))return [];if(['Ліс','Природна зона','Землекористування'].includes(f.kind)&&land&&!land.some(r=>ringContains(p,r)))return [];rank=f.kind==='Держава / територія'?5:f.kind==='Провінція'?4:2}return [{feature:f,rank,dist}] }).sort((a,b)=>a.rank-b.rank||a.dist-b.dist).map(r=>r.feature)}
+export function pathLength(ps){return ps.slice(1).reduce((n,b,i)=>n+Math.hypot(b[0]-ps[i][0],b[1]-ps[i][1])*40,0)}
